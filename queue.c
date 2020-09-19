@@ -131,8 +131,10 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
         if (q->size > 0) {
             if (q->tail == q->head)
                 q->tail = NULL;
-            strncpy(sp, q->head->value, bufsize);
-            sp[bufsize - 1] = 0;
+            if (sp) {
+                strncpy(sp, q->head->value, bufsize);
+                sp[bufsize - 1] = 0;
+            }
             free(q->head->value);
             list_ele_t *pasthead = q->head;
             q->head = q->head->next;
@@ -207,6 +209,8 @@ void q_sort(queue_t *q)
                     int cmp = strcmp(curr->value, curr->next->value);
                     if (cmp > 0) {
                         list_ele_t *oldnextnext;
+                        if (curr->next == q->tail)
+                            q->tail = curr;
                         // *prev_indirect -> curr -> currnext
                         *prev_indirect = curr->next;
                         oldnextnext = curr->next->next;
