@@ -51,35 +51,42 @@ void q_free(queue_t *q)
  * Argument s points to the string to be stored.
  * The function must explicitly allocate space and copy the string into it.
  */
-bool q_insert_head(queue_t *q, char *s)
+bool q_create_elem(queue_t *q, char *s, list_ele_t **newelem)
 {
     if (!q)
         return false;
 
-    list_ele_t *newh;
     /* TODO: What should you do if the q is NULL? */
-    newh = malloc(sizeof(list_ele_t));
+    *newelem = malloc(sizeof(list_ele_t));
 
     /* Don't forget to allocate space for the string and copy it */
     /* What if either call to malloc returns NULL? */
-    if (newh) {
+    if (*newelem) {
         size_t len = strlen(s) + 1;
-        newh->value = malloc(sizeof(char) * len);
-        if (newh->value) {
-            strncpy(newh->value, s, len);
+        (*newelem)->value = malloc(sizeof(char) * len);
+        if ((*newelem)->value) {
+            strncpy((*newelem)->value, s, len);
         } else {
-            free(newh);
+            free(*newelem);
             return false;
         }
-        // Update q when all data are ready
-        if (q->head == NULL)
-            q->tail = newh;
-        newh->next = q->head;
-        q->head = newh;
-        q->size++;
         return true;
     } else
         return false;
+}
+bool q_insert_head(queue_t *q, char *s)
+{
+    list_ele_t *newelem;
+    bool ret = q_create_elem(q, s, &newelem);
+    if (ret) {
+        // Update q when all data are ready
+        if (q->head == NULL)
+            q->tail = newelem;
+        newelem->next = q->head;
+        q->head = newelem;
+        q->size++;
+    }
+    return ret;
 }
 
 /*
@@ -91,10 +98,21 @@ bool q_insert_head(queue_t *q, char *s)
  */
 bool q_insert_tail(queue_t *q, char *s)
 {
-    /* TODO: You need to write the complete code for this function */
-    /* Remember: It should operate in O(1) time */
-    /* TODO: Remove the above comment when you are about to implement. */
-    return false;
+    list_ele_t *newelem;
+    bool ret = q_create_elem(q, s, &newelem);
+    if (ret) {
+        // Update q when all data are ready
+        newelem->next = NULL;
+        if (q->head == NULL) {
+            q->head = newelem;
+            q->tail = newelem;
+        } else {
+            q->tail->next = newelem;
+            q->tail = newelem;
+        }
+        q->size++;
+    }
+    return ret;
 }
 
 /*
