@@ -16,6 +16,8 @@ queue_t *q_new()
     /* ANS: Make the queue NULL */
     if (q) {
         q->head = NULL;
+        q->tail = NULL;
+        q->size = 0;
     } else {
         q = NULL;
     }
@@ -70,8 +72,11 @@ bool q_insert_head(queue_t *q, char *s)
             return false;
         }
         // Update q when all data are ready
+        if (q->head == NULL)
+            q->tail = newh;
         newh->next = q->head;
         q->head = newh;
+        q->size++;
         return true;
     } else
         return false;
