@@ -190,6 +190,32 @@ void q_reverse(queue_t *q)
  */
 void q_sort(queue_t *q)
 {
-    /* TODO: You need to write the code for this function */
-    /* TODO: Remove the above comment when you are about to implement. */
+    // Use bubble sort
+    if (q) {
+        list_ele_t *curr;
+        for (int remaining = q->size; remaining > 0; remaining--) {
+            curr = q->head;
+            list_ele_t **prev_indirect = &(q->head);
+            int iter = 0;
+            while (curr) {
+                iter++;
+                if (iter > remaining)
+                    break;
+                // compare and swap
+                if (curr->next) {
+                    int cmp = strcmp(curr->value, curr->next->value);
+                    if (cmp > 0) {
+                        list_ele_t *oldnextnext;
+                        // *prev_indirect -> curr -> currnext
+                        *prev_indirect = curr->next;
+                        oldnextnext = curr->next->next;
+                        curr->next->next = curr;
+                        curr->next = oldnextnext;
+                    }
+                }
+                prev_indirect = &(curr->next);
+                curr = curr->next;
+            }
+        }
+    }
 }
