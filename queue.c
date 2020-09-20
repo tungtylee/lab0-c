@@ -192,40 +192,6 @@ void q_reverse(queue_t *q)
  * element, do nothing.
  */
 
-void q_sort_slow(queue_t *q)
-{
-    // Use bubble sort
-    if (q) {
-        list_ele_t *curr;
-        for (int remaining = q->size; remaining > 0; remaining--) {
-            curr = q->head;
-            list_ele_t **prev_indirect = &(q->head);
-            int iter = 0;
-            while (curr) {
-                iter++;
-                if (iter > remaining)
-                    break;
-                // compare and swap
-                if (curr->next) {
-                    int cmp = strcmp(curr->value, curr->next->value);
-                    if (cmp > 0) {
-                        list_ele_t *oldnextnext;
-                        if (curr->next == q->tail)
-                            q->tail = curr;
-                        // *prev_indirect -> curr -> currnext
-                        *prev_indirect = curr->next;
-                        oldnextnext = curr->next->next;
-                        curr->next->next = curr;
-                        curr->next = oldnextnext;
-                    }
-                }
-                prev_indirect = &(curr->next);
-                curr = curr->next;
-            }
-        }
-    }
-}
-
 list_ele_t *join_result(list_ele_t *first, list_ele_t *second)
 {
     if (!first)
@@ -291,15 +257,13 @@ list_ele_t *list_merge_sort(list_ele_t *head, size_t size)
 void q_sort(queue_t *q)
 {
     if (q && q->head) {
-        if (q->size >= 200) {
+        if (q->size >= 2) {
             list_ele_t *result = list_merge_sort(q->head, q->size);
             q->head = result;  // !! update the head
             while (result) {
                 q->tail = result;
                 result = result->next;
             }
-        } else if (q->size >= 2) {
-            q_sort_slow(q);
         }
     }
 }
