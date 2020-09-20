@@ -191,7 +191,8 @@ void q_reverse(queue_t *q)
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
  */
-void q_sort(queue_t *q)
+
+void q_sort_slow(queue_t *q)
 {
     // Use bubble sort
     if (q) {
@@ -221,6 +222,84 @@ void q_sort(queue_t *q)
                 prev_indirect = &(curr->next);
                 curr = curr->next;
             }
+        }
+    }
+}
+
+list_ele_t *join_result(list_ele_t *first, list_ele_t *second)
+{
+    if (!first)
+        return second;
+    if (!second)
+        return first;
+    list_ele_t *head = NULL;
+    list_ele_t *curr = NULL;
+
+    while (first && second) {
+        int cmp = strcmp(first->value, second->value);
+        if (cmp > 0) {
+            if (head == NULL) {
+                head = second;
+                curr = head;
+            } else {
+                curr->next = second;
+                curr = curr->next;
+            }
+            second = second->next;
+        } else {
+            if (head == NULL) {
+                head = first;
+                curr = head;
+            } else {
+                curr->next = first;
+                curr = curr->next;
+            }
+            first = first->next;
+        }
+    }
+
+    if (first) {
+        curr->next = first;
+    }
+
+    if (second) {
+        curr->next = second;
+    }
+
+    return head;
+}
+
+list_ele_t *list_merge_sort(list_ele_t *head, size_t size)
+{
+    if (size < 2)
+        return head;
+    size_t firstsz = size / 2;
+    size_t secondsz = size - firstsz;
+    // split to two parts
+    list_ele_t *second = head;
+    for (int i = 0; i < firstsz - 1; i++)
+        second = second->next;
+    list_ele_t *tmp = second;
+    second = second->next;
+    tmp->next = NULL;
+
+    list_ele_t *outfirst = list_merge_sort(head, firstsz);
+    list_ele_t *outsecond = list_merge_sort(second, secondsz);
+    return join_result(outfirst, outsecond);
+}
+
+void q_sort(queue_t *q)
+{
+    if (q && q->head) {
+        if (q->size >= 200) {
+            list_ele_t *result = list_merge_sort(q->head, q->size);
+            q->head = result;  // !! update the head
+            while (result) {
+                q->tail = result;
+                result = result->next;
+            }
+        } else if (q->size >= 2) {
+            q_sort_slow(q);
         }
     }
 }
